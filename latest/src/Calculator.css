@@ -1,0 +1,57 @@
+body{
+    background-color: #8a6477;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+}
+
+.screen {
+    width: 253px;
+    height: 70px;
+    margin-bottom: 10px;
+    font-size: 25px;
+    background-color: black;
+    border: #000000;
+    color: white;
+    text-align: right;
+}
+
+.symbol {
+    margin-bottom: 10px;
+}
+
+.responsive {
+    border-radius: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 20px 20px;
+    margin: 100px;
+    background-color: black;
+}
+
+
+button {
+    font-size: 20px;
+    padding: 10px 20px;
+    margin: 5px;
+    border:#ffffff;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+    border-radius: 20px;
+}
+
+
+.column {
+    font-size: 40px;
+    display: inline grid;
+}
+
+.delete {
+    height: 45px;
+}
+
+
