@@ -3,41 +3,67 @@ import './Calculator.css';
 
 function Calculator(){
 
-  const hadleKeyDown = (event) => {
+const [inputValue, setInputValue] = useState('');
+const [lastButtonType, setLastButtonType] = useState('number'); 
+const [selectedOperator, setSelectedOperator] = useState(null);
+
+  const handleKeyDown = (event) => {
     event.preventDefault();
-  }
+    };
 
-  const [inputValue, setInputValue] = useState('');
-
-  const handleButtonClick = (value) => {
-      setInputValue((prevValue) => prevValue + value);
-  };
+    const handleButtonClick = (value) => {
+      if (value.match(/\d/)) { // Eğer rakam butonuna tıklanmışsa
+        if (inputValue.length < 15) {
+          setInputValue(prevValue => prevValue + value);
+          setLastButtonType('number');
+          setSelectedOperator(null); // Rakam kullanıldığında işlem butonlarını tekrar etkinleştir
+        }
+      } else { // Eğer işlem butonuna tıklanmışsa
+        if (inputValue.length > 0 && selectedOperator === null) { // Son karakter işlem butonu değilse ve işlem butonu kullanılmamışsa
+          setInputValue(prevValue => prevValue + value);
+          setLastButtonType('operator');
+          setSelectedOperator(value); // İşlem butonunu saklar
+        } else if (inputValue.length > 0 && lastButtonType === 'operator') {
+          // Eğer son buton işlem butonuysa, mevcut işlem butonunu değiştirir
+          setInputValue(prevValue => prevValue.slice(0, -1) + value);
+          setLastButtonType('operator');
+          setSelectedOperator(value); // İşlem butonunu saklar
+        }
+      }
+    };
+  
 
   const clearInput = () => {
     setInputValue('');
+    setLastButtonType('number');
+    setHasOperator(null);
   };
 
   const oneByOne = () => {
     if (inputValue.length > 0) {
-      setInputValue(inputValue.slice(0, -1));
+      const lastChar = inputValue[inputValue.length - 1];
+      if (lastChar.match(/[\d.]/)) {
+        setLastButtonType('number');
+      } else {
+        setSelectedOperator(null); // İşlem butonu silinirse tekrar etkinleştirir
+        setLastButtonType('operator');
+      }
+      setInputValue(prevValue => prevValue.slice(0, -1));
     }
   };
 
-  const collection = (value) => {
-    if(onClick)
-    setInputValue((prevValue) => prevValue + value);
-    else
-    setInputValue(prevValue);
-  }
-  
     return(
+      <div className='generalDiv'>
+          <h1>Two Operation Calculator</h1>
       <div className="responsive">
+
         <div>
-          <input 
-          className='screen'
-          type="text"
-          value= {inputValue} readOnly>  
-          </input>
+         <input
+         className='screen'
+         type="text"
+         value= {inputValue} readOnly
+         onChange={handleKeyDown}>  
+        </input>
         </div>
 
         <div className="symbols">
@@ -58,21 +84,22 @@ function Calculator(){
           </div>
 
             <div className='column 3'>
-          <button className="mod"> % </button>
+          <button className="modButton" onClick={() => handleButtonClick('%')} disabled={selectedOperator !== null}> % </button>
           <button className="nine" onClick={() => handleButtonClick('9')}> 9 </button>
           <button className="six" onClick={() => handleButtonClick('6')}> 6 </button>
           <button className="three" onClick={() => handleButtonClick('3')}> 3 </button>
-          <button className="point" onClick={() => handleButtonClick('.')}> . </button> 
+          <button className="point" onClick={() => handleButtonClick('.')} disabled={selectedOperator !== null}> . </button> 
           </div>
 
           <div className='column 4'>
-          <button className="divi"> ÷ </button>  
-          <button className="mult"> x </button>          
-          <button className="subt"> - </button>   
-          <button className="coll" onClick={() => collection('+')}> + </button> 
-          <button className="equals"> = </button>           
+          <button className="divButton" onClick={() => handleButtonClick('÷')} disabled={selectedOperator !== null}> ÷ </button>  
+          <button className="mulButton" onClick={() => handleButtonClick('x')} disabled={selectedOperator !== null}> x </button>          
+          <button className="subButton" onClick={() => handleButtonClick('-')} disabled={selectedOperator !== null}> - </button>   
+          <button className="sumButton" onClick={() => handleButtonClick('+')} disabled={selectedOperator !== null}> + </button> 
+          <button className="equalButton" /*onClick={() => handleButtonClick('=')} disabled={lastButtonType==='operator'}*/> = </button>           
           </div>
         </div>
+      </div>
       </div>
     )
     
