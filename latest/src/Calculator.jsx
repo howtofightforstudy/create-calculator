@@ -18,6 +18,8 @@ const [selectedOperator, setSelectedOperator] = useState(null);
           setLastButtonType('number');
           setSelectedOperator(null); // Rakam kullanıldığında işlem butonlarını tekrar etkinleştir
         }
+      } else if (value === '=') { // Eğer eşitlik butonuna tıklanmışsa
+        handleCalculate();
       } else { // Eğer işlem butonuna tıklanmışsa
         if (inputValue.length > 0 && selectedOperator === null) { // Son karakter işlem butonu değilse ve işlem butonu kullanılmamışsa
           setInputValue(prevValue => prevValue + value);
@@ -31,7 +33,19 @@ const [selectedOperator, setSelectedOperator] = useState(null);
         }
       }
     };
-  
+
+    const handleCalculate = () => {
+      try {
+        // inputValue içindeki matematiksel ifadeyi değerlendirip sonucu setInputValue ile göster
+        // Güvenlik nedeniyle, eval yerine güvenli bir hesaplama kütüphanesi kullanmak daha iyidir
+        const result = eval(inputValue.replace('÷', '/').replace('x', '*')); 
+        setInputValue(result.toString());
+        setLastButtonType('number');
+        setSelectedOperator(null);
+      } catch (e) {
+        setInputValue('Error');
+      }
+    };
 
   const clearInput = () => {
     setInputValue('');
@@ -54,8 +68,8 @@ const [selectedOperator, setSelectedOperator] = useState(null);
 
     return(
       <div className='generalDiv'>
-          <h1>Two Operation Calculator</h1>
-      <div className="responsive">
+        <h1>CALCULATOR</h1> 
+       <div className="responsive">
 
         <div>
          <input
@@ -96,7 +110,7 @@ const [selectedOperator, setSelectedOperator] = useState(null);
           <button className="mulButton" onClick={() => handleButtonClick('x')} disabled={selectedOperator !== null}> x </button>          
           <button className="subButton" onClick={() => handleButtonClick('-')} disabled={selectedOperator !== null}> - </button>   
           <button className="sumButton" onClick={() => handleButtonClick('+')} disabled={selectedOperator !== null}> + </button> 
-          <button className="equalButton" /*onClick={() => handleButtonClick('=')} disabled={lastButtonType==='operator'}*/> = </button>           
+          <button className="equalButton" onClick={() => handleButtonClick('=')} disabled={lastButtonType==='operator'}> = </button>       
           </div>
         </div>
       </div>
