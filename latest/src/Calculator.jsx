@@ -6,51 +6,63 @@ function Calculator(){
 const [inputValue, setInputValue] = useState('');
 const [lastButtonType, setLastButtonType] = useState('number'); 
 const [selectedOperator, setSelectedOperator] = useState(null);
+const [errorMessage, setErrorMessage] = useState('');
 
-  const handleKeyDown = (event) => {
-    event.preventDefault();
+    const handleKeyDown = (event) => {
+      event.preventDefault();
+    };
+
+    const removeLeadingZeros = (value) => {
+      return value.replace(/^0+(?!$)/, '');
     };
 
     const handleButtonClick = (value) => {
-      if (value.match(/\d/)) { // Eğer rakam butonuna tıklanmışsa
-        if (inputValue.length < 15) {
-          setInputValue(prevValue => prevValue + value);
+      if (value.match(/\d/)) { 
+        if (inputValue.length < 17) {
+          let newValue = inputValue + value;
+          newValue = removeLeadingZeros(newValue); // Başlangıç sıfırlarını kaldır
+          setInputValue(newValue);
           setLastButtonType('number');
-          setSelectedOperator(null); // Rakam kullanıldığında işlem butonlarını tekrar etkinleştir
+          setSelectedOperator(null); 
+          setErrorMessage(''); 
+        } else {
+          setErrorMessage('You have exceeded the character limit. (limit: 17 characters)');
         }
-      } else if (value === '=') { // Eğer eşitlik butonuna tıklanmışsa
+      } else if (value === '=') { 
         handleCalculate();
-      } else { // Eğer işlem butonuna tıklanmışsa
-        if (inputValue.length > 0 && selectedOperator === null) { // Son karakter işlem butonu değilse ve işlem butonu kullanılmamışsa
-          setInputValue(prevValue => prevValue + value);
+      } else { 
+        if (inputValue.length > 0 && selectedOperator === null) {
+          setInputValue(prevValue => removeLeadingZeros(prevValue) + value);
           setLastButtonType('operator');
-          setSelectedOperator(value); // İşlem butonunu saklar
+          setSelectedOperator(value); 
+          setErrorMessage(''); 
         } else if (inputValue.length > 0 && lastButtonType === 'operator') {
-          // Eğer son buton işlem butonuysa, mevcut işlem butonunu değiştirir
-          setInputValue(prevValue => prevValue.slice(0, -1) + value);
+          setInputValue(prevValue => removeLeadingZeros(prevValue).slice(0, -1) + value);
           setLastButtonType('operator');
-          setSelectedOperator(value); // İşlem butonunu saklar
+          setSelectedOperator(value);
+          setErrorMessage(''); 
         }
       }
     };
 
     const handleCalculate = () => {
-      try {
-        // inputValue içindeki matematiksel ifadeyi değerlendirip sonucu setInputValue ile göster
-        // Güvenlik nedeniyle, eval yerine güvenli bir hesaplama kütüphanesi kullanmak daha iyidir
-        const result = eval(inputValue.replace('÷', '/').replace('x', '*')); 
-        setInputValue(result.toString());
-        setLastButtonType('number');
-        setSelectedOperator(null);
-      } catch (e) {
-        setInputValue('Error');
-      }
-    };
+    try {
+      const result = eval(inputValue.replace('÷', '/').replace('x', '*')); 
+      setInputValue(result.toString());
+      setLastButtonType('number');
+      setSelectedOperator(null);
+      setErrorMessage(''); 
+    } catch (e) {
+      setInputValue('Error');
+      setErrorMessage('Faulty operation');
+    }
+  };
 
   const clearInput = () => {
     setInputValue('');
     setLastButtonType('number');
-    setHasOperator(null);
+    setSelectedOperator(null);
+    setErrorMessage(''); 
   };
 
   const oneByOne = () => {
@@ -62,7 +74,8 @@ const [selectedOperator, setSelectedOperator] = useState(null);
         setSelectedOperator(null); // İşlem butonu silinirse tekrar etkinleştirir
         setLastButtonType('operator');
       }
-      setInputValue(prevValue => prevValue.slice(0, -1));
+      setInputValue(prevValue => removeLeadingZeros(prevValue).slice(0, -1));
+      setErrorMessage(''); 
     }
   };
 
@@ -81,7 +94,7 @@ const [selectedOperator, setSelectedOperator] = useState(null);
         </div>
 
         <div className="symbols">
-          <div className='column 1'>
+          <div className='column a'>
           <button className="clear" onClick={() => clearInput()}> C </button> 
           <button className="seven" onClick={() => handleButtonClick('7')}> 7 </button>  
           <button className="four" onClick={() => handleButtonClick('4')}> 4 </button>          
@@ -89,7 +102,7 @@ const [selectedOperator, setSelectedOperator] = useState(null);
           <button className="zero" onClick={() => handleButtonClick('0')}> 0 </button> 
           </div>
 
-            <div className='column 2'>
+            <div className='column b'>
           <button className="delete" onClick={() => oneByOne()}> del </button> 
           <button className="eight" onClick={() => handleButtonClick('8')}> 8 </button>
           <button className="five" onClick={() => handleButtonClick('5')}> 5 </button>
@@ -97,7 +110,7 @@ const [selectedOperator, setSelectedOperator] = useState(null);
           <button className="double_zero" onClick={() => handleButtonClick('00')}> 00 </button>      
           </div>
 
-            <div className='column 3'>
+            <div className='column c'>
           <button className="modButton" onClick={() => handleButtonClick('%')} disabled={selectedOperator !== null}> % </button>
           <button className="nine" onClick={() => handleButtonClick('9')}> 9 </button>
           <button className="six" onClick={() => handleButtonClick('6')}> 6 </button>
@@ -105,13 +118,14 @@ const [selectedOperator, setSelectedOperator] = useState(null);
           <button className="point" onClick={() => handleButtonClick('.')} disabled={selectedOperator !== null}> . </button> 
           </div>
 
-          <div className='column 4'>
+          <div className='column d'>
           <button className="divButton" onClick={() => handleButtonClick('÷')} disabled={selectedOperator !== null}> ÷ </button>  
           <button className="mulButton" onClick={() => handleButtonClick('x')} disabled={selectedOperator !== null}> x </button>          
           <button className="subButton" onClick={() => handleButtonClick('-')} disabled={selectedOperator !== null}> - </button>   
           <button className="sumButton" onClick={() => handleButtonClick('+')} disabled={selectedOperator !== null}> + </button> 
-          <button className="equalButton" onClick={() => handleButtonClick('=')} disabled={lastButtonType==='operator'}> = </button>       
+          <button className="equalButton" onClick={() => handleButtonClick('=')} disabled={selectedOperator !== null}> = </button>       
           </div>
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
         </div>
       </div>
       </div>
